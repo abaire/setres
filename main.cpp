@@ -54,11 +54,18 @@ int main(int argc, const char *argv[]) {
   return 0;
 }
 
-static bool get_best_display_mode(CGDirectDisplayID display, size_t width, size_t height, CGDisplayModeRef &mode) {
+static CFArrayRef get_all_display_modes(CGDirectDisplayID display) {
   const void *keys[1] = {kCGDisplayShowDuplicateLowResolutionModes};
   const void *values[1] = {kCFBooleanTrue};
-  CFDictionaryRef dict_ref = CFDictionaryCreate(nullptr, keys, values, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-  CFArrayRef modes = CGDisplayCopyAllDisplayModes(display, dict_ref);
+  CFDictionaryRef options = CFDictionaryCreate(nullptr, keys, values, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+  CFArrayRef modes = CGDisplayCopyAllDisplayModes(display, options);
+
+  CFRelease(options);
+  return modes;
+}
+
+static bool get_best_display_mode(CGDirectDisplayID display, size_t width, size_t height, CGDisplayModeRef &mode) {
+  CFArrayRef modes = get_all_display_modes(display);
 
   CFIndex best_match = -1;
   for (auto i = 0; i < CFArrayGetCount(modes); ++i) {
@@ -88,12 +95,8 @@ static bool get_best_display_mode(CGDirectDisplayID display, size_t width, size_
 }
 
 static void print_display_modes(CGDirectDisplayID display) {
-  int display_id = CGMainDisplayID();
-  printf("Available resolutions: %d\n", display_id);
-  const void *keys[1] = {kCGDisplayShowDuplicateLowResolutionModes};
-  const void *values[1] = {kCFBooleanTrue};
-  CFDictionaryRef dict_ref = CFDictionaryCreate(nullptr, keys, values, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-  CFArrayRef modes = CGDisplayCopyAllDisplayModes(display, dict_ref);
+  printf("Available resolutions:\n");
+  CFArrayRef modes = get_all_display_modes(display);
 
   unsigned int last_width = 0;
   unsigned int last_height = 0;
