@@ -2,15 +2,23 @@
 
 Utility to set screen resolution to any of the modes reported by CoreGraphics.
 
-## usage
+## Usage
 
-`setres`
+Display the supported modes:
+```sh
+setres
+```
 
-Display the supported modes.
+Change to a supported mode:
+```sh
+setres <width> <height>
+```
 
-`setres <width> <height>`
+## Build
 
-Change to a supported mode.
+Build the binary:
+```sh
+brew install cmake
 
-
-
+cmake -S . -B build && cmake --build build
+```
