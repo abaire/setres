@@ -55,6 +55,8 @@ int main(int argc, const char *argv[]) {
 }
 
 static CFArrayRef get_all_display_modes(CGDirectDisplayID display) {
+  // Include all HiDPI modes
+  // Ref: https://stackoverflow.com/questions/13859109/how-to-programmatically-determine-native-pixel-resolution-of-retina-macbook-pro
   const void *keys[1] = {kCGDisplayShowDuplicateLowResolutionModes};
   const void *values[1] = {kCFBooleanTrue};
   CFDictionaryRef options = CFDictionaryCreate(nullptr, keys, values, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
