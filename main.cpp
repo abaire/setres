@@ -55,7 +55,10 @@ int main(int argc, const char *argv[]) {
 }
 
 static bool get_best_display_mode(CGDirectDisplayID display, size_t width, size_t height, CGDisplayModeRef &mode) {
-  CFArrayRef modes = CGDisplayCopyAllDisplayModes(display, nullptr);
+  const void *keys[1] = {kCGDisplayShowDuplicateLowResolutionModes};
+  const void *values[1] = {kCFBooleanTrue};
+  CFDictionaryRef dict_ref = CFDictionaryCreate(nullptr, keys, values, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+  CFArrayRef modes = CGDisplayCopyAllDisplayModes(display, dict_ref);
 
   CFIndex best_match = -1;
   for (auto i = 0; i < CFArrayGetCount(modes); ++i) {
@@ -85,8 +88,12 @@ static bool get_best_display_mode(CGDirectDisplayID display, size_t width, size_
 }
 
 static void print_display_modes(CGDirectDisplayID display) {
-  printf("Available resolutions:\n");
-  CFArrayRef modes = CGDisplayCopyAllDisplayModes(display, nullptr);
+  int display_id = CGMainDisplayID();
+  printf("Available resolutions: %d\n", display_id);
+  const void *keys[1] = {kCGDisplayShowDuplicateLowResolutionModes};
+  const void *values[1] = {kCFBooleanTrue};
+  CFDictionaryRef dict_ref = CFDictionaryCreate(nullptr, keys, values, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+  CFArrayRef modes = CGDisplayCopyAllDisplayModes(display, dict_ref);
 
   unsigned int last_width = 0;
   unsigned int last_height = 0;
@@ -109,7 +116,6 @@ static void print_display_modes(CGDirectDisplayID display) {
   CGRect screenFrame = CGDisplayBounds(display);
   CGSize screenSize = screenFrame.size;
   printf("Current resolution: %d %d\n", static_cast<int>(screenSize.width), static_cast<int>(screenSize.height));
-
 }
 
 static bool switch_display_mode(CGDirectDisplayID display, CGDisplayModeRef mode) {
