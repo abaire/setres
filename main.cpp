@@ -21,7 +21,7 @@ int main(int argc, const char *argv[]) {
   int width_index = 1;
   int height_index = 2;
   if (argc == 4) {
-    if (*argv[2] != 'x') {
+    if (strcmp(argv[2], "x") != 0) {
       has_error = true;
     } else {
       height_index = 3;
