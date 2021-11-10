@@ -4,21 +4,36 @@ static bool get_best_display_mode(CGDirectDisplayID display, size_t width, size_
 static void print_display_modes(CGDirectDisplayID display);
 static bool switch_display_mode(CGDirectDisplayID display, CGDisplayModeRef mode);
 
+static void print_usage(const char *program_name);
+
 int main(int argc, const char *argv[]) {
   if (argc == 1) {
     print_display_modes(kCGDirectMainDisplay);
     return 0;
   }
 
+  if (argc < 3 || argc > 4) {
+    print_usage(argv[0]);
+    return 1;
+  }
+
+  bool has_error = false;
+  int width_index = 1;
+  int height_index = 2;
+  if (argc == 4) {
+    if (*argv[2] != 'x') {
+      has_error = true;
+    } else {
+      height_index = 3;
+    }
+  }
+
   unsigned long width;
   unsigned long height;
-  if (argc != 3 ||
-      !(width = strtoul(argv[1], nullptr, 10)) ||
-      !(height = strtoul(argv[2], nullptr, 10))) {
-
-    fprintf(stderr, "Usage %s <horizontal_resolution> <vertical_resolution>\n", argv[0]);
-    fprintf(stderr, "\n");
-    print_display_modes(kCGDirectMainDisplay);
+  if (has_error ||
+      !(width = strtoul(argv[width_index], nullptr, 10)) ||
+      !(height = strtoul(argv[height_index], nullptr, 10))) {
+    print_usage(argv[0]);
     return 1;
   }
 
@@ -105,4 +120,10 @@ static bool switch_display_mode(CGDirectDisplayID display, CGDisplayModeRef mode
     return true;
   }
   return false;
+}
+
+static void print_usage(const char *program_name) {
+  fprintf(stderr, "Usage %s <horizontal_resolution> [x] <vertical_resolution>\n", program_name);
+  fprintf(stderr, "\n");
+  print_display_modes(kCGDirectMainDisplay);
 }
