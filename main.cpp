@@ -54,8 +54,20 @@ int main(int argc, const char *argv[]) {
   return 0;
 }
 
+static CFArrayRef get_all_display_modes(CGDirectDisplayID display) {
+  // Include all HiDPI modes
+  // Ref: https://stackoverflow.com/questions/13859109/how-to-programmatically-determine-native-pixel-resolution-of-retina-macbook-pro
+  const void *keys[1] = {kCGDisplayShowDuplicateLowResolutionModes};
+  const void *values[1] = {kCFBooleanTrue};
+  CFDictionaryRef options = CFDictionaryCreate(nullptr, keys, values, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+  CFArrayRef modes = CGDisplayCopyAllDisplayModes(display, options);
+
+  CFRelease(options);
+  return modes;
+}
+
 static bool get_best_display_mode(CGDirectDisplayID display, size_t width, size_t height, CGDisplayModeRef &mode) {
-  CFArrayRef modes = CGDisplayCopyAllDisplayModes(display, nullptr);
+  CFArrayRef modes = get_all_display_modes(display);
 
   CFIndex best_match = -1;
   for (auto i = 0; i < CFArrayGetCount(modes); ++i) {
@@ -86,7 +98,7 @@ static bool get_best_display_mode(CGDirectDisplayID display, size_t width, size_
 
 static void print_display_modes(CGDirectDisplayID display) {
   printf("Available resolutions:\n");
-  CFArrayRef modes = CGDisplayCopyAllDisplayModes(display, nullptr);
+  CFArrayRef modes = get_all_display_modes(display);
 
   unsigned int last_width = 0;
   unsigned int last_height = 0;
@@ -109,7 +121,6 @@ static void print_display_modes(CGDirectDisplayID display) {
   CGRect screenFrame = CGDisplayBounds(display);
   CGSize screenSize = screenFrame.size;
   printf("Current resolution: %d %d\n", static_cast<int>(screenSize.width), static_cast<int>(screenSize.height));
-
 }
 
 static bool switch_display_mode(CGDirectDisplayID display, CGDisplayModeRef mode) {
